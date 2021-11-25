@@ -1,7 +1,7 @@
 # gene variance
 # gene evidences
 # clinical trials
-
+import numpy as np
 import os
 import pandas as pd
 from openpyxl import load_workbook
@@ -25,9 +25,14 @@ for file in files:
     if file.endswith(".xlsx"):
         # print(file)
         excel_file = pd.ExcelFile(f"{folder}/{file}")
+        # print(excel_file)
+
         sheets = excel_file.sheet_names
+
         # print(f"{file}, {sheets}")
+        print(sheets)
         for sheet in sheets:
+            # print(sheet)
             # print(sheet)
             if sheet.lower().strip() == "gene variants":
                 gv = excel_file.parse(sheet_name=sheet)
@@ -64,12 +69,36 @@ for file in files:
                 variant_associated_tri_total = variant_associated_tri_total.append(
                     variant_associated_tri)
 
-# gv_total.to_excel(f"{folder}/geneVariants.xlsx", sheet_name="Gene Variants")
-# ge_total.to_excel(f"{folder}/geneEvidences.xlsx", sheet_name="Gene Evidences")
-# # ge_total.to_excel()
-# ct_total.to_excel(f"{folder}/clinicalTrials.xlsx",
-#                   sheet_name="Clinical Trials")
+
+# ge_total['GENE'] = ge_total.pop['GENE'].fillna(ge_total["GENE "]).astype(str)
+
+ge_total["GENE"] = np.where(ge_total["GENE"].isna(
+), ge_total["GENE "], ge_total["GENE"]).astype("str")
+
+gv_total["GENE"] = np.where(gv_total["GENE"].isna(
+), gv_total["GENE "], gv_total["GENE"]).astype("str")
+
+# gv_total['GENE'] = gv_total['GENE'].replace(np.nan, 0)
+
+gv_total["GENE"] = np.where(
+    gv_total["GENE"].equals == np.nan, gv_total["gene"], gv_total["GENE"]).astype("str")
+
+gv_total = gv_total.drop("GENE ", axis=1)
+
+
+# gv_total["GENE"] = np.where(gv_total["GENE"].isnull(), 'value_is_NaN')
+# , gv_total["gene"], gv_total["GENE"]).astype("str")
+
+
+# gv_total['GENE'] = np.where(gv_total['GENE'].isna(
+# ), gv_total["gene"], ge_total['GENE']).astype("str")
+
+# gv_total['GENE'] = np.where(gv_total['GENE'].isna(
+# ), gv_total["GENES"], ge_total['GENE']).astype("str")
+
+
+# print(ge_total['GENE'])
 
 with pd.ExcelWriter('combined660.xlsx') as writer:  # doctest: +SKIP
-    # gv_total.to_excel(writer, sheet_name='Gene Variants')
+    gv_total.to_excel(writer, sheet_name='Gene Variants')
     ge_total.to_excel(writer, sheet_name='Gene Evidences')
